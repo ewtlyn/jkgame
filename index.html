@@ -2,216 +2,178 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ЧБЧГ — Чёрно-Белый Чонгук</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
   :root {
     --gold: #c8a96e; --gold2: #e8c97e;
     --red2: #c0392b; --white: #f0ece4;
-    --text: #c8c4bc; --muted: #6a6560;
+    --text: #c4c0b8;
   }
-  html, body { width:100%; height:100%; overflow:hidden; background:#000; }
-  body {
-    font-family: 'Montserrat', sans-serif;
-    color: var(--white);
-    display: flex; align-items: center; justify-content: center;
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background:#000;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat',sans-serif; color:var(--white);
   }
-
   .rain { position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
-  .raindrop {
-    position:absolute; width:1px;
-    background: linear-gradient(transparent, rgba(200,169,110,0.12));
-    animation: fall linear infinite;
-  }
-  @keyframes fall {
-    from { transform:translateY(-100px); opacity:0; }
-    10% { opacity:1; } 90% { opacity:0.4; }
-    to { transform:translateY(110vh); opacity:0; }
-  }
+  .raindrop { position:absolute; width:1px; background:linear-gradient(transparent,rgba(200,169,110,0.12)); animation:fall linear infinite; }
+  @keyframes fall { from{transform:translateY(-100px);opacity:0} 10%{opacity:1} 90%{opacity:.4} to{transform:translateY(110vh);opacity:0} }
 
+  /* Shell */
   .game {
     position:relative; z-index:10;
-    width:390px; height:844px;
-    background:#000; border-radius:32px; overflow:hidden;
-    box-shadow: 0 0 0 1px #1a1a1a, 0 40px 100px rgba(0,0,0,0.95);
+    width:100%; height:100%;
+    max-width:430px;
+    background:#000; overflow:hidden;
     display:flex; flex-direction:column;
   }
+  @media(min-width:500px) {
+    body { background:#080808; }
+    .game { height:min(860px,100vh); border-radius:32px; box-shadow:0 0 0 1px #1a1a1a,0 40px 100px rgba(0,0,0,.95); }
+  }
 
-  /* SCENE */
+  /* Scene */
   .scene { position:relative; flex:1; overflow:hidden; background:#000; min-height:0; }
 
   .char-img {
-    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
-    width:340px; height:500px;
+    position:absolute; bottom:0; left:50%;
+    transform:translateX(-50%);
+    width:100%; max-width:390px;
+    height:min(530px,63vh);
     object-fit:cover; object-position:top center;
-    transition: filter 0.6s ease;
-    filter: brightness(0.85) contrast(1.1);
+    transition:filter .6s ease;
+    filter:brightness(.85) contrast(1.1);
   }
   .char-glow {
-    position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
-    width:240px; height:80px; border-radius:50%;
-    background: radial-gradient(ellipse, rgba(139,0,0,0.35) 0%, transparent 70%);
-    filter:blur(25px); transition:all 0.6s ease; z-index:2;
+    position:absolute; bottom:-10px; left:50%;
+    transform:translateX(-50%);
+    width:60%; max-width:240px; height:80px; border-radius:50%;
+    background:radial-gradient(ellipse,rgba(139,0,0,.35) 0%,transparent 70%);
+    filter:blur(25px); transition:all .6s ease; z-index:2; pointer-events:none;
   }
   .vignette {
     position:absolute; inset:0;
-    background:
-      radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(0,0,0,0.6) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.95) 100%);
+    background:radial-gradient(ellipse at 50% 0%,transparent 40%,rgba(0,0,0,.6) 100%),
+               linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 30%,transparent 55%,rgba(0,0,0,.98) 100%);
     pointer-events:none; z-index:4;
   }
-
   .top-bar {
     position:absolute; top:0; left:0; right:0; z-index:20;
-    padding:18px 20px 10px;
+    padding:max(16px,env(safe-area-inset-top)) 20px 10px;
     display:flex; align-items:center; justify-content:space-between;
-    background:linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    background:linear-gradient(180deg,rgba(0,0,0,.8) 0%,transparent 100%);
   }
-  .game-title {
-    font-family:'Cormorant Garamond',serif;
-    font-size:13px; letter-spacing:5px;
-    color:rgba(200,169,110,0.7); text-transform:uppercase;
-  }
+  .game-title { font-family:'Cormorant Garamond',serif; font-size:clamp(11px,3vw,13px); letter-spacing:5px; color:rgba(200,169,110,.7); text-transform:uppercase; }
   .heart-bar { display:flex; gap:5px; }
-  .heart { font-size:13px; transition:all 0.3s ease; }
+  .heart { font-size:13px; transition:all .3s ease; }
   .status-pill {
     position:absolute; top:52px; right:18px; z-index:20;
-    background:rgba(0,0,0,0.7);
-    border:1px solid rgba(200,169,110,0.2); border-radius:20px;
-    padding:3px 10px; font-size:9px; color:var(--gold);
+    background:rgba(0,0,0,.7); border:1px solid rgba(200,169,110,.2);
+    border-radius:20px; padding:3px 10px; font-size:9px; color:var(--gold);
     letter-spacing:2px; backdrop-filter:blur(4px); text-transform:uppercase;
   }
-
+  .flash { position:absolute; inset:0; background:white; opacity:0; pointer-events:none; z-index:50; transition:opacity .15s ease; }
+  .flash.active { opacity:.2; }
   .particles { position:absolute; inset:0; pointer-events:none; z-index:5; }
   .particle { position:absolute; border-radius:50%; animation:floatUp linear infinite; }
-  @keyframes floatUp {
-    0% { transform:translateY(0); opacity:0; }
-    10% { opacity:0.8; } 90% { opacity:0.3; }
-    100% { transform:translateY(-220px) translateX(20px); opacity:0; }
-  }
-
-  .flash {
-    position:absolute; inset:0; background:white;
-    opacity:0; pointer-events:none; z-index:50;
-    transition:opacity 0.15s ease;
-  }
-  .flash.active { opacity:0.25; }
+  @keyframes floatUp { 0%{transform:translateY(0);opacity:0} 10%{opacity:.8} 90%{opacity:.2} 100%{transform:translateY(-220px);opacity:0} }
 
   .chapter-marker {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    background:rgba(0,0,0,0.92); border:1px solid var(--gold);
+    background:rgba(0,0,0,.93); border:1px solid var(--gold);
     padding:18px 36px; text-align:center; z-index:80;
-    opacity:0; pointer-events:none; transition:opacity 0.5s ease;
-    border-radius:3px; backdrop-filter:blur(10px);
+    opacity:0; pointer-events:none; transition:opacity .5s ease;
+    border-radius:3px; width:min(280px,80vw);
   }
   .chapter-marker.show { opacity:1; }
   .chapter-label { font-size:9px; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:6px; }
-  .chapter-name { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--white); }
+  .chapter-name { font-family:'Cormorant Garamond',serif; font-size:clamp(17px,5vw,22px); color:var(--white); }
 
-  .end-screen {
-    position:absolute; inset:0; z-index:100;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:40px; text-align:center;
-    opacity:0; pointer-events:none; transition:opacity 0.8s ease;
-  }
+  .end-screen { position:absolute; inset:0; z-index:100; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; text-align:center; opacity:0; pointer-events:none; transition:opacity .8s ease; }
   .end-screen.active { opacity:1; pointer-events:all; }
-  .end-screen.death { background:radial-gradient(ellipse at center, rgba(40,0,0,0.97) 0%, rgba(0,0,0,0.99) 100%); }
-  .end-screen.romance { background:radial-gradient(ellipse at center, rgba(15,5,25,0.97) 0%, rgba(0,0,0,0.99) 100%); }
-  .end-icon { font-size:56px; margin-bottom:16px; animation:pulse 2s ease infinite; }
-  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
-  .end-title { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:600; margin-bottom:10px; letter-spacing:4px; }
+  .end-screen.death { background:radial-gradient(ellipse at center,rgba(40,0,0,.97) 0%,rgba(0,0,0,.99) 100%); }
+  .end-screen.romance { background:radial-gradient(ellipse at center,rgba(15,5,25,.97) 0%,rgba(0,0,0,.99) 100%); }
+  .end-icon { font-size:52px; margin-bottom:14px; animation:pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .end-title { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,7vw,28px); font-weight:600; margin-bottom:10px; letter-spacing:4px; }
   .end-title.death { color:#c0392b; }
   .end-title.romance { color:var(--gold2); }
-  .end-desc { font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.7; color:var(--text); margin-bottom:28px; font-style:italic; }
-  .restart-btn {
-    background:transparent; border:1px solid var(--gold); color:var(--gold);
-    padding:10px 28px; font-family:'Montserrat',sans-serif;
-    font-size:10px; letter-spacing:3px; text-transform:uppercase;
-    cursor:pointer; transition:all 0.3s ease; border-radius:3px;
-  }
+  .end-desc { font-family:'Cormorant Garamond',serif; font-size:clamp(13px,4vw,15px); line-height:1.7; color:var(--text); margin-bottom:28px; font-style:italic; }
+  .restart-btn { background:transparent; border:1px solid var(--gold); color:var(--gold); padding:10px 28px; font-family:'Montserrat',sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:all .3s ease; border-radius:3px; }
   .restart-btn:hover { background:var(--gold); color:#000; }
 
-  /* BOTTOM UI */
-  .bottom-ui {
-    flex-shrink:0; background:#000;
-    border-top:1px solid rgba(200,169,110,0.15);
-    display:flex; flex-direction:column;
-  }
+  /* Bottom UI */
+  .bottom-ui { flex-shrink:0; background:#000; display:flex; flex-direction:column; padding-bottom:max(0px,env(safe-area-inset-bottom)); }
 
-  .name-badge { padding:0 20px; margin-top:-1px; min-height:28px; }
+  .name-badge { padding:0 16px; }
   .name-badge-inner {
     display:inline-block; background:#000;
-    border:1px solid rgba(200,169,110,0.4); border-bottom:none;
-    border-radius:5px 5px 0 0; padding:4px 18px;
-    font-family:'Cormorant Garamond',serif; font-size:14px;
-    font-weight:600; color:var(--gold); letter-spacing:3px;
-    text-transform:uppercase; position:relative; top:1px;
-    transition:opacity 0.2s ease;
+    border:1px solid rgba(200,169,110,.4); border-bottom:none;
+    border-radius:5px 5px 0 0; padding:4px 14px;
+    font-family:'Cormorant Garamond',serif; font-size:clamp(12px,3.5vw,14px);
+    font-weight:600; color:var(--gold); letter-spacing:3px; text-transform:uppercase;
+    position:relative; top:1px; transition:opacity .3s ease;
   }
-  .name-badge-inner::before, .name-badge-inner::after { content:'◆'; font-size:7px; margin:0 5px; opacity:0.5; }
+  .name-badge-inner::before,.name-badge-inner::after { content:'◆'; font-size:7px; margin:0 4px; opacity:.5; }
 
   .dialog-box {
-    background:rgba(0,0,0,0.95);
-    border:1px solid rgba(200,169,110,0.25); border-bottom:none;
-    margin:0 20px; padding:14px 18px 12px;
-    min-height:76px; position:relative;
+    background:rgba(0,0,0,.96);
+    border:1px solid rgba(200,169,110,.25); border-bottom:none;
+    margin:0 16px; padding:12px 16px 10px;
+    position:relative; min-height:68px;
   }
-  .dialog-box::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:linear-gradient(90deg, transparent, rgba(200,169,110,0.5), transparent);
-  }
+  .dialog-box::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(200,169,110,.5),transparent); }
 
   .dialog-text {
     font-family:'Cormorant Garamond',serif;
-    font-size:17px; line-height:1.55; color:var(--white);
-    animation: textIn 0.3s ease both;
+    font-size:clamp(15px,4.2vw,17px);
+    line-height:1.6; color:var(--white);
+    min-height:1.6em;
   }
-  @keyframes textIn { from{opacity:0;transform:translateY(3px);} to{opacity:1;transform:translateY(0);} }
-  .dialog-text.narrator { font-style:italic; color:#888; font-size:15px; }
+  .dialog-text.narrator { font-style:italic; color:#888; font-size:clamp(13px,3.8vw,15px); }
+
+  /* Blinking cursor */
+  .cursor {
+    display:inline-block; width:2px; height:1em;
+    background:var(--gold); margin-left:2px;
+    vertical-align:middle; opacity:1;
+    animation:blink .7s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
   .choices {
-    padding:10px 20px 16px;
-    display:flex; flex-direction:column; gap:6px;
-    background:#000;
-    border:1px solid rgba(200,169,110,0.25); border-top:none;
-    margin:0 20px 16px; border-radius:0 0 6px 6px;
+    padding:8px 16px 12px; display:flex; flex-direction:column; gap:6px;
+    background:#000; border:1px solid rgba(200,169,110,.25); border-top:none;
+    margin:0 16px 12px; border-radius:0 0 6px 6px;
   }
-
   .choice-btn {
-    background:transparent;
-    border:1px solid rgba(200,169,110,0.18); border-radius:5px;
-    padding:9px 14px 9px 16px;
+    background:transparent; border:1px solid rgba(200,169,110,.18);
+    border-radius:5px; padding:9px 14px 9px 16px;
     color:var(--text); font-family:'Montserrat',sans-serif;
-    font-size:11px; text-align:left; cursor:pointer;
-    transition:all 0.22s ease; position:relative; overflow:hidden;
-    letter-spacing:0.2px; line-height:1.4;
+    font-size:clamp(10px,2.8vw,11px); text-align:left; cursor:pointer;
+    transition:border-color .22s ease,color .22s ease,padding-left .22s ease,background .22s ease;
+    position:relative; overflow:hidden; line-height:1.4;
+    -webkit-tap-highlight-color:transparent;
   }
   .choice-btn::before {
-    content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
-    background:var(--gold); transform:scaleY(0);
-    transition:transform 0.22s ease; transform-origin:bottom;
+    content:''; position:absolute; left:0; top:0; bottom:0;
+    width:2px; background:var(--gold);
+    transform:scaleY(0); transition:transform .22s ease; transform-origin:bottom;
   }
-  .choice-btn:hover {
-    border-color:rgba(200,169,110,0.55); color:var(--gold2);
-    padding-left:20px; background:rgba(200,169,110,0.04);
-  }
-  .choice-btn:hover::before { transform:scaleY(1); }
-
-  .choice-btn.danger { border-color:rgba(139,0,0,0.25); }
+  .choice-btn:hover,.choice-btn:active { border-color:rgba(200,169,110,.55); color:var(--gold2); padding-left:20px; background:rgba(200,169,110,.04); }
+  .choice-btn:hover::before,.choice-btn:active::before { transform:scaleY(1); }
+  .choice-btn.danger { border-color:rgba(139,0,0,.25); }
   .choice-btn.danger::before { background:var(--red2); }
-  .choice-btn.danger:hover {
-    border-color:rgba(192,57,43,0.6); color:#ff9999;
-    background:rgba(139,0,0,0.05);
-  }
-  .choice-btn:disabled { opacity:0.4; cursor:default; pointer-events:none; }
+  .choice-btn.danger:hover,.choice-btn.danger:active { border-color:rgba(192,57,43,.6); color:#ffaaaa; background:rgba(139,0,0,.05); }
 </style>
 </head>
 <body>
 <div class="rain" id="rain"></div>
 <div class="game">
-  <div class="scene">
+  <div class="scene" id="scene">
     <div class="top-bar">
       <span class="game-title">ЧБЧГ</span>
       <div class="heart-bar" id="hearts"></div>
@@ -240,7 +202,7 @@
     </div>
   </div>
   <div class="bottom-ui">
-    <div class="name-badge">
+    <div class="name-badge" id="name-badge">
       <div class="name-badge-inner" id="speaker-name">Чонгук</div>
     </div>
     <div class="dialog-box">
@@ -249,19 +211,18 @@
     <div class="choices" id="choices"></div>
   </div>
 </div>
-
 <script>
 // Rain
 (function(){
-  const rain=document.getElementById('rain');
+  const r=document.getElementById('rain');
   for(let i=0;i<50;i++){
     const d=document.createElement('div'); d.className='raindrop';
     d.style.left=Math.random()*100+'%';
     d.style.height=(Math.random()*60+30)+'px';
-    d.style.animationDuration=(Math.random()*0.9+0.5)+'s';
+    d.style.animationDuration=(Math.random()*.9+.5)+'s';
     d.style.animationDelay=(-Math.random()*2)+'s';
-    d.style.opacity=Math.random()*0.5+0.05;
-    rain.appendChild(d);
+    d.style.opacity=Math.random()*.5+.05;
+    r.appendChild(d);
   }
 })();
 
@@ -270,35 +231,37 @@
   const c=document.getElementById('particles');
   for(let i=0;i<10;i++){
     const p=document.createElement('div'); p.className='particle';
+    const sz=(Math.random()*2+1)+'px';
     p.style.left=Math.random()*100+'%';
     p.style.bottom=(Math.random()*80)+'px';
-    p.style.width=p.style.height=(Math.random()*2+1)+'px';
-    p.style.background=Math.random()>0.5?'rgba(200,169,110,0.5)':'rgba(139,0,0,0.5)';
+    p.style.width=p.style.height=sz;
+    p.style.background=Math.random()>.5?'rgba(200,169,110,.5)':'rgba(139,0,0,.5)';
     p.style.animationDuration=(Math.random()*5+4)+'s';
     p.style.animationDelay=(-Math.random()*5)+'s';
     c.appendChild(p);
   }
 })();
 
-// ===== TIMER SYSTEM — все таймеры через wait(), сбрасываются при выборе =====
+// ── Timer & typewriter system ──
 let _timers = [];
-function wait(ms, fn) {
-  const id = setTimeout(fn, ms);
-  _timers.push(id);
-}
-function clearAll() {
-  _timers.forEach(clearTimeout);
-  _timers = [];
+let _typeTimer = null;
+
+function wait(ms, fn) { const t=setTimeout(fn,ms); _timers.push(t); }
+
+function cancelAll() {
+  _timers.forEach(clearTimeout); _timers=[];
+  if(_typeTimer){ clearInterval(_typeTimer); _typeTimer=null; }
 }
 
-// ===== STATE =====
-let state = { hearts: 3 };
+// ── State ──
+let hearts = 3;
 
 function updateHearts(n) {
+  hearts=n;
   const el=document.getElementById('hearts'); el.innerHTML='';
   for(let i=0;i<3;i++){
     const h=document.createElement('span'); h.className='heart';
-    h.style.color=i<n?'#c0392b':'#2a2a2a';
+    h.style.color=i<n?'#c0392b':'#252525';
     h.textContent=i<n?'♥':'♡';
     el.appendChild(h);
   }
@@ -307,310 +270,234 @@ function updateHearts(n) {
 function setMood(mood) {
   const g=document.getElementById('char-glow');
   const img=document.getElementById('char-img');
-  if(mood==='danger'){
-    g.style.background='radial-gradient(ellipse, rgba(180,0,0,0.7) 0%, transparent 70%)';
-    g.style.width='320px';
-    img.style.filter='brightness(0.75) contrast(1.2)';
-  } else if(mood==='intense'){
-    g.style.background='radial-gradient(ellipse, rgba(139,0,0,0.6) 0%, transparent 70%)';
-    g.style.width='280px';
-    img.style.filter='brightness(0.85) contrast(1.15)';
-  } else if(mood==='soft'){
-    g.style.background='radial-gradient(ellipse, rgba(80,40,100,0.55) 0%, transparent 70%)';
-    g.style.width='260px';
-    img.style.filter='brightness(0.92) contrast(1.05)';
-  } else {
-    g.style.background='radial-gradient(ellipse, rgba(139,0,0,0.35) 0%, transparent 70%)';
-    g.style.width='240px';
-    img.style.filter='brightness(0.85) contrast(1.1)';
-  }
+  const base='position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:';
+  const tail=';height:80px;border-radius:50%;filter:blur(25px);transition:all .6s ease;z-index:2;pointer-events:none;background:radial-gradient(ellipse,';
+  if(mood==='danger'){ g.style.cssText=base+'320px'+tail+'rgba(180,0,0,.75) 0%,transparent 70%)'; img.style.filter='brightness(.72) contrast(1.2)'; }
+  else if(mood==='intense'){ g.style.cssText=base+'280px'+tail+'rgba(139,0,0,.6) 0%,transparent 70%)'; img.style.filter='brightness(.82) contrast(1.12)'; }
+  else if(mood==='soft'){ g.style.cssText=base+'260px'+tail+'rgba(90,40,120,.55) 0%,transparent 70%)'; img.style.filter='brightness(.9) contrast(1.05)'; }
+  else { g.style.cssText=base+'240px'+tail+'rgba(139,0,0,.35) 0%,transparent 70%)'; img.style.filter='brightness(.85) contrast(1.1)'; }
 }
 
-function flash() {
+function doFlash() {
   const f=document.getElementById('flash');
   f.classList.add('active');
   setTimeout(()=>f.classList.remove('active'),200);
 }
 
-function setStatus(t){ document.getElementById('status-pill').textContent=t; }
-
-// setDialog — меняет текст, перезапускает анимацию ОДИН РАЗ
-function setDialog(speaker, text, isNarrator=false) {
-  const nameEl=document.getElementById('speaker-name');
-  const textEl=document.getElementById('dialog-text');
-  if(isNarrator){
-    nameEl.style.opacity='0';
-    textEl.className='dialog-text narrator';
-  } else {
-    nameEl.style.opacity='1';
-    nameEl.textContent=speaker;
-    textEl.className='dialog-text';
-  }
-  textEl.style.animation='none';
-  void textEl.offsetHeight;
-  textEl.style.animation='textIn 0.3s ease both';
-  textEl.textContent=text;
+function showChapter(name, fn) {
+  const m=document.getElementById('chapter-marker');
+  document.getElementById('chapter-name').textContent=name;
+  m.classList.add('show');
+  wait(2000,()=>{ m.classList.remove('show'); wait(600,fn); });
 }
 
-// showChoices — блокирует кнопки сразу после нажатия, чистит таймеры
+function setStatus(t){ document.getElementById('status-pill').textContent=t; }
+
+// ── Typewriter ──
+function say(speaker, text, narrator) {
+  const badge=document.getElementById('name-badge');
+  const nameEl=document.getElementById('speaker-name');
+  const textEl=document.getElementById('dialog-text');
+
+  if(narrator){ badge.style.opacity='0'; textEl.className='dialog-text narrator'; }
+  else { badge.style.opacity='1'; nameEl.textContent=speaker; textEl.className='dialog-text'; }
+
+  if(_typeTimer){ clearInterval(_typeTimer); _typeTimer=null; }
+  textEl.innerHTML='';
+
+  let i=0;
+  // Add blinking cursor
+  const cursor=document.createElement('span');
+  cursor.className='cursor';
+  textEl.appendChild(cursor);
+
+  _typeTimer=setInterval(()=>{
+    if(i<text.length){
+      cursor.before(document.createTextNode(text[i]));
+      i++;
+    } else {
+      clearInterval(_typeTimer); _typeTimer=null;
+      cursor.remove();
+    }
+  }, 36);
+}
+
 function showChoices(choices) {
-  const c=document.getElementById('choices');
-  c.innerHTML='';
+  const c=document.getElementById('choices'); c.innerHTML='';
   choices.forEach(ch=>{
     const btn=document.createElement('button');
-    btn.className='choice-btn'+(ch.danger?' danger':'');
-    btn.textContent=ch.text;
-    btn.onclick=()=>{
-      // заблокировать все кнопки немедленно
-      c.querySelectorAll('button').forEach(b=>b.disabled=true);
-      clearAll();
-      flash();
-      wait(200, ()=>ch.action());
-    };
+    btn.className='choice-btn'+(ch.d?' danger':'');
+    btn.textContent=ch.t;
+    btn.onclick=()=>{ cancelAll(); doFlash(); wait(180,ch.fn); };
     c.appendChild(btn);
   });
 }
 
-function showChapter(name, then) {
-  const m=document.getElementById('chapter-marker');
-  document.getElementById('chapter-name').textContent=name;
-  m.classList.add('show');
-  wait(3000,()=>{ m.classList.remove('show'); wait(3000,then); });
-}
+function endDeath(desc){ document.getElementById('death-desc').textContent=desc; document.getElementById('end-death').classList.add('active'); }
+function endRomance(desc){ document.getElementById('romance-desc').textContent=desc; document.getElementById('end-romance').classList.add('active'); }
+function restart(){ cancelAll(); document.getElementById('end-death').classList.remove('active'); document.getElementById('end-romance').classList.remove('active'); updateHearts(3); scene_intro(); }
 
-function endDeath(desc) {
-  document.getElementById('death-desc').textContent=desc;
-  document.getElementById('end-death').classList.add('active');
-}
-function endRomance(desc) {
-  document.getElementById('romance-desc').textContent=desc;
-  document.getElementById('end-romance').classList.add('active');
-}
-function restart() {
-  clearAll();
-  document.getElementById('end-death').classList.remove('active');
-  document.getElementById('end-romance').classList.remove('active');
-  state={hearts:3}; updateHearts(3);
-  scene_intro();
-}
-
-// ===== STORY =====
+// ════════ STORY ════════
 
 function scene_intro() {
   setMood('neutral'); setStatus('Ночь I');
-  setDialog('','Бар «Чёрная Луна». Полночь. Воздух пахнет виски и опасностью. Тебя привели сюда — долг не прощают.',true);
+  say('','Бар «Чёрная Луна». Полночь. Воздух пахнет виски и опасностью. Тебя привели сюда — долг не прощают.',true);
   showChoices([
-    {text:'— Осмотреться. Найти выход на случай, если что-то пойдёт не так.',action:scene_1a},
-    {text:'— Сесть на указанное место. Ждать.',action:scene_1b},
+    {t:'— Осмотреться. Найти выход на случай, если что-то пойдёт не так.',fn:scene_1a},
+    {t:'— Сесть на указанное место. Ждать.',fn:scene_1b},
   ]);
 }
 
-function scene_1a(){
-  setDialog('','Ты медленно обходишь зал. Охранники у каждого выхода. Их не меньше восьми. И тут — голос позади. Низкий. Тихий. Опаснее выстрела.',true);
-  showChoices([
-    {text:'— Обернуться медленно. Без резких движений.',action:()=>{
-      setMood('intense');
-      setDialog('Чонгук','— Ищешь выход, Ким Тэхён?');
-      showChoices([
-        {text:'— Сесть. Встретить взгляд.',action:scene_3a},
-        {text:'— Дёрнуться к двери.',action:scene_dead_1,danger:true},
-      ]);
-    }},
-    {text:'— Дёрнуться к ближайшей двери.',action:scene_dead_1,danger:true},
-  ]);
+function scene_1a() {
+  say('','Ты медленно обходишь зал. Охранники у каждого выхода. Их не меньше восьми. И тут — голос позади. Низкий. Тихий. Опаснее выстрела.',true);
+  wait(7000,()=>{ setMood('intense'); say('Чонгук','— Ищешь выход, Ким Тэхён?'); showChoices([{t:'— Обернуться медленно. Без резких движений.',fn:scene_2a},{t:'— Дёрнуться к ближайшей двери.',fn:scene_dead_1,d:true}]); });
 }
 
-function scene_1b(){
-  setDialog('','Ты садишься. Виски появляется само. Через три минуты напротив садится он. Чёрный костюм. Взгляд, от которого перехватывает дыхание.',true);
-  showChoices([
-    {text:'— Молча смотреть ему в глаза.',action:()=>{
-      setMood('intense');
-      setDialog('Чонгук','— Интересно. Большинство отводят взгляд.');
-      wait(600,()=>{
-        setDialog('Чонгук','— Смелость или безумие — я ещё не решил.');
-        showChoices([
-          {text:'— Смелость. Это разные вещи.',action:scene_3a},
-          {text:'— Может, и то, и другое.',action:()=>{ setMood('soft'); setDialog('Чонгук','— Ким Тэхён. Неожиданный человек.'); wait(3000,scene_3a); }},
-        ]);
-      });
-    }},
-    {text:'— Взять виски. Сделать глоток.',action:()=>{
-      setDialog('','Ты берёшь бокал. Он смотрит на твои руки — долго. Потом — тень улыбки.',true);
-      showChoices([
-        {text:'— Просто уважаю хороший вкус.',action:()=>{ setMood('soft'); setDialog('Чонгук','— Неожиданный человек.'); wait(3000,scene_3a); }},
-        {text:'— Ты прав. Я нервничаю.',action:()=>{ setDialog('Чонгук','— По крайней мере честно. Уважаю.'); wait(3000,scene_3a); }},
-      ]);
-    }},
-  ]);
+function scene_1b() {
+  say('','Ты садишься. Виски появляется само. Через три минуты напротив садится он. Чёрный костюм. Взгляд, от которого перехватывает дыхание.',true);
+  wait(7000,()=>{ setMood('intense'); say('Чонгук','— Пришёл. Умно. Значит, не совсем дурак.'); showChoices([{t:'— Молча смотреть ему в глаза.',fn:scene_2b},{t:'— Взять виски. Сделать глоток.',fn:scene_2c}]); });
 }
 
-function scene_dead_1(){
-  state.hearts--; updateHearts(state.hearts);
-  setMood('danger');
-  setDialog('','Два шага — и ты на полу. Охранник из ниоткуда. Колено на спине.',true);
-  showChoices([
-    {text:'(смотреть в пол)',action:()=>{
-      setDialog('Чонгук','— Глупо. Я ожидал большего.');
-      wait(3000,()=>{ setDialog('','Выстрел. Короткий. Финальный.',true); wait(3000,()=>endDeath('Ты выбрал побег вместо того, чтобы встретить его лицом к лицу. Чонгук не прощает слабых.')); });
-    }},
-  ]);
+function scene_dead_1() {
+  updateHearts(hearts-1); setMood('danger');
+  say('','Два шага — и ты на полу. Охранник материализовался из ниоткуда. Колено на спине. Холодный металл у виска.',true);
+  wait(7000,()=>{ say('Чонгук','— Глупо. Я ожидал большего от тебя.'); wait(7000,()=>{ say('','Выстрел. Короткий. Финальный.',true); wait(4000,()=>endDeath('Ты выбрал побег — вместо того чтобы встретить его лицом к лицу. Чонгук не прощает слабых.')); }); });
 }
 
-function scene_3a(){
+function scene_2a() {
+  say('','Ты оборачиваешься. Он стоит в метре. Высокий. Взгляд — цвет старого янтаря. Смотрит на тебя как на шахматную фигуру.',true);
+  wait(7000,()=>{ say('Чонгук','— Мне нравятся те, кто не паникует. Сядь.'); showChoices([{t:'— Сесть. Встретить взгляд без страха.',fn:scene_3a},{t:'— Сесть. Опустить взгляд.',fn:scene_3b}]); });
+}
+
+function scene_2b() {
+  setMood('intense'); say('Чонгук','— Интересно. Большинство отводят взгляд. Ты — нет.');
+  wait(7000,()=>{ say('','Он медленно наклоняется. Лицо ближе, чем нужно.',true); wait(7000,()=>{ say('Чонгук','— Смелость или безумие — я ещё не решил.'); showChoices([{t:'— Смелость. Это разные вещи.',fn:scene_3a},{t:'— Может, и то, и другое.',fn:scene_3c}]); }); });
+}
+
+function scene_2c() {
+  say('','Ты берёшь бокал. Чонгук смотрит на твои руки — долго, внимательно. Потом — тень улыбки.',true);
+  wait(7000,()=>{ say('Чонгук','— Я помню, ты не пьёшь. Значит, нервничаешь.'); showChoices([{t:'— Нет. Просто уважаю хороший вкус.',fn:scene_3c},{t:'— Ты прав. Я нервничаю.',fn:scene_3d}]); });
+}
+
+function scene_3a() {
   setStatus('Ночь II');
   showChapter('II · Переговоры',()=>{
-    setDialog('','Его офис — на последнем этаже. Стекло. Мрамор. Вид на весь город, который он держит в кулаке.',true);
-    showChoices([
-      {text:'— Какие условия?',action:()=>{
-        setDialog('Чонгук','— Умный вопрос. Мне нужен человек рядом. Всегда.');
-        wait(3000,()=>{
-          setDialog('','Он подходит ближе. Слишком близко для делового разговора.',true);
-          showChoices([
-            {text:'— Рядом — значит телохранитель?',action:scene_5a},
-            {text:'"Рядом" — слишком широкое понятие.',action:()=>{ setMood('soft'); setDialog('','Что-то в его взгляде меняется.',true); wait(3000,scene_5a); }},
-          ]);
-        });
-      }},
-      {text:'— Три месяца — много.',action:()=>{
-        setMood('danger');
-        setDialog('Чонгук','— Ты торгуешься. Смело. Один месяц. Финально.');
-        showChoices([
-          {text:'— Принято.',action:scene_5a},
-          {text:'— Три недели.',action:()=>endDeath('Чонгук умеет считать. Ты дал ему повод считать, что ты — проблема.')},
-        ]);
-      }},
-      {text:'— Согласен.',action:()=>{ setDialog('','Он кивает — едва заметно.',true); wait(3000,scene_5a); }},
-    ]);
+    say('','Его офис — последний этаж. Стекло. Чёрный мрамор. Вид на весь город. Он стоит у окна.',true);
+    wait(7000,()=>{ say('Чонгук','— Три месяца работаешь на меня. После — свободен. Долг закрыт.'); showChoices([{t:'— Условия? Я хочу знать детали.',fn:scene_4a},{t:'— Три месяца — много. Хочу меньше.',fn:scene_4b},{t:'— Согласен.',fn:scene_4c}]); });
   });
 }
 
-function scene_5a(){
+function scene_3b() {
+  setMood('danger'); updateHearts(hearts-1);
+  say('Чонгук','— Значит, боишься. Это... разочаровывает.');
+  wait(7000,()=>{ setStatus('Ночь II'); showChapter('II · Переговоры',()=>{ say('Чонгук','— Три месяца. Без вопросов. Без слабости.'); showChoices([{t:'— Понял.',fn:scene_4a},{t:'— Мне нужны гарантии.',fn:scene_dead_2,d:true}]); }); });
+}
+
+function scene_3c() {
+  setMood('soft'); say('','Что-то в его взгляде меняется. Совсем чуть-чуть.',true);
+  wait(7000,()=>{ say('Чонгук','— Ким Тэхён. Неожиданный человек.'); wait(7000,()=>scene_3a()); });
+}
+
+function scene_3d() {
+  say('Чонгук','— По крайней мере честно. Уважаю.');
+  wait(7000,()=>scene_3a());
+}
+
+function scene_dead_2() {
+  say('Чонгук','— Гарантии.');
+  wait(7000,()=>{ say('','Тишина. Потом — холодный смех.',true); wait(7000,()=>{ say('Чонгук','— У тебя нет позиции для требований.'); wait(7000,()=>endDeath('Ты требовал гарантий у человека, которому не нужно ничего доказывать.')); }); });
+}
+
+function scene_4a() {
+  say('Чонгук','— Умный вопрос. Мне нужен человек, которому я могу доверять.');
+  wait(7000,()=>{ say('','Он подходит ближе. Слишком близко для делового разговора.',true); wait(7000,()=>{ say('Чонгук','— Ты будешь рядом. Всегда. Это не обсуждается.'); showChoices([{t:'— Рядом — значит телохранитель?',fn:scene_5a},{t:'"Рядом" — это очень широкое понятие.',fn:scene_5b}]); }); });
+}
+
+function scene_4b() {
+  setMood('danger'); say('Чонгук','— Ты торгуешься со мной. Смело.');
+  wait(7000,()=>{ say('Чонгук','— Один месяц. Финально.'); showChoices([{t:'— Принято.',fn:scene_5a},{t:'— Три недели.',fn:scene_dead_3,d:true}]); });
+}
+
+function scene_4c() {
+  say('','Он смотрит долгую секунду. Потом кивает — едва заметно.',true);
+  wait(7000,()=>{ say('Чонгук','— Хорошо. Начинаем сегодня.'); wait(7000,()=>scene_5a()); });
+}
+
+function scene_dead_3() { endDeath('Чонгук умеет считать. Ты дал ему повод считать, что ты — проблема. Проблемы не живут долго.'); }
+
+function scene_5a() {
   setStatus('Ночь III');
   showChapter('III · Граница',()=>{
     setMood('intense');
-    setDialog('','Три недели спустя. Ты знаешь его маршруты, привычки. И то, как он смотрит на тебя — дольше, чем нужно.',true);
-    showChoices([
-      {text:'— Я стараюсь.',action:()=>{ setDialog('Чонгук','— Это не стандартный ответ.'); wait(3000,scene_7); }},
-      {text:'— Это работа.',action:()=>{ setDialog('Чонгук','— Просто работа. Хм.'); wait(3000,scene_7); }},
-      {text:'— Ты тоже неожиданный.',action:()=>{
-        setMood('soft');
-        setDialog('','Тишина. Потом — он смеётся. Тихо, но по-настоящему.',true);
-        wait(600,()=>{ setDialog('Чонгук','— Ты первый, кто говорит мне такое.'); wait(3000,scene_7_direct); });
-      }},
-    ]);
+    say('','Три недели спустя. Ты знаешь его маршруты. Его привычки. И то, как он смотрит на тебя — дольше, чем нужно.',true);
+    wait(7000,()=>{ say('Чонгук','— Ты хорошо справляешься. Лучше, чем я думал.'); showChoices([{t:'— Я стараюсь.',fn:scene_6a},{t:'— Это работа.',fn:scene_6b},{t:'— Ты тоже. Неожиданно.',fn:scene_6c}]); });
   });
 }
 
-function scene_7(){
-  setDialog('','Поздно. Коридор пуст. Его рука — на твоём плече. Внезапно.',true);
-  showChoices([
-    {text:'— Слушаю.',action:scene_7_direct},
-    {text:'— Зависит от вопроса.',action:scene_7_direct},
-  ]);
+function scene_5b() {
+  setMood('soft'); say('','Что-то в твоём голосе — он его слышит. Взгляд становится другим.',true);
+  wait(7000,()=>{ say('Чонгук','— Ты умеешь слышать то, что не говорят. Интересный навык.'); wait(7000,()=>scene_5a()); });
 }
 
-function scene_7_direct(){
-  setDialog('Чонгук','— Ты боишься меня?');
-  showChoices([
-    {text:'— Нет. Я боюсь себя рядом с тобой.',action:scene_8_soft},
-    {text:'— Нет. Ты меня интересуешь.',action:scene_8_soft},
-    {text:'— Да. И ты это знаешь.',action:scene_8_hard},
-    {text:'— Отступить. Сохранить дистанцию.',action:scene_8_retreat},
-  ]);
+function scene_6a(){ say('Чонгук','— Это не стандартный ответ.'); wait(7000,()=>scene_7_corridor()); }
+function scene_6b(){ say('Чонгук','— Просто работа. Хм.'); wait(7000,()=>scene_7_corridor()); }
+function scene_6c(){
+  setMood('soft'); say('','Тишина. Потом — он смеётся. Тихо, но по-настоящему.',true);
+  wait(7000,()=>{ say('Чонгук','— Ты первый, кто говорит мне такое.'); wait(7000,()=>scene_7_choice()); });
 }
 
-function scene_8_soft(){
+function scene_7_corridor() {
+  say('','Поздно. Коридор пуст. Его рука — на твоём плече. Внезапно. Тяжело.',true);
+  wait(7000,()=>{ say('Чонгук','— Тэхён. У меня есть вопрос не по работе.'); showChoices([{t:'— Задавай.',fn:scene_7_choice},{t:'— Зависит от вопроса.',fn:scene_7_choice}]); });
+}
+
+function scene_7_choice() {
+  say('Чонгук','— Ты боишься меня?');
+  wait(7000,()=>{ say('','Его рука всё ещё на твоём плече. Слишком близко.',true); wait(7000,()=>{ showChoices([{t:'— Нет. Я боюсь себя рядом с тобой.',fn:scene_8_soft},{t:'— Нет. Ты меня... интересуешь.',fn:scene_8_soft},{t:'— Да. И ты это знаешь.',fn:scene_8_hard},{t:'— Отступить. Сохранить дистанцию.',fn:scene_8_retreat,d:true}]); }); });
+}
+
+function scene_8_soft() {
   setStatus('Ночь IV');
   showChapter('IV · Точка невозврата',()=>{
     setMood('soft');
-    setDialog('','Его пальцы сжимаются чуть сильнее. Что-то ломается в той броне, которую он носит.',true);
-    wait(3000,()=>{
-      setDialog('Чонгук','— Тэхён.');
-      wait(3000,()=>{
-        setDialog('','Одно слово. Твоё имя — как разрешение.',true);
-        showChoices([
-          {text:'— Шагнуть к нему.',action:scene_romance_1},
-          {text:'— Позволить ему сделать первый шаг.',action:scene_romance_1},
-        ]);
-      });
-    });
+    say('','Его пальцы сжимаются чуть сильнее. Что-то ломается в той броне, которую он носит.',true);
+    wait(7000,()=>{ say('Чонгук','— Тэхён.'); wait(7000,()=>{ say('','Одно слово. Твоё имя — как разрешение.',true); wait(7000,()=>{ showChoices([{t:'— Шагнуть к нему.',fn:scene_romance_1},{t:'— Позволить ему сделать первый шаг.',fn:scene_romance_1}]); }); }); });
   });
 }
 
-function scene_8_hard(){
+function scene_8_hard() {
   setStatus('Ночь IV');
   showChapter('IV · Точка невозврата',()=>{
     setMood('intense');
-    setDialog('Чонгук','— Честно. Мне это нравится в тебе.');
-    wait(3000,()=>{
-      setDialog('','Он делает шаг. Потом ещё. Стена за твоей спиной.',true);
-      wait(3000,()=>{
-        setDialog('Чонгук','— Я мог бы пообещать, что не буду опасен. Но ты мне не поверишь. И будешь прав.');
-        showChoices([
-          {text:'— Мне это и нужно.',action:scene_romance_1},
-          {text:'— Знаю. Именно поэтому.',action:scene_romance_1},
-          {text:'— Уйти.',action:scene_dead_final,danger:true},
-        ]);
-      });
-    });
+    say('Чонгук','— Честно. Мне это нравится в тебе. Что ты не притворяешься.');
+    wait(7000,()=>{ say('','Он делает шаг. Потом ещё. Стена за твоей спиной.',true); wait(7000,()=>{ say('Чонгук','— Я мог бы пообещать, что не буду опасен. Но ты мне не поверишь. И будешь прав.'); wait(7000,()=>{ showChoices([{t:'— Мне это и нужно.',fn:scene_romance_1},{t:'— Знаю. Именно поэтому.',fn:scene_romance_1},{t:'— Уйти.',fn:scene_dead_final,d:true}]); }); }); });
   });
 }
 
-function scene_8_retreat(){
-  setMood('danger');
-  state.hearts--; updateHearts(state.hearts);
-  if(state.hearts<=0){
-    setDialog('Чонгук','— Значит всё-таки боишься.');
-    wait(3000,()=>{ setDialog('','Он отпускает тебя. Что-то гаснет в его взгляде.',true); wait(3000,()=>endDeath('Ты отступил в последний момент. В его мире нет места для нерешительных.')); });
-    return;
-  }
-  setDialog('Чонгук','— Хорошо. Как хочешь.');
-  wait(3000,()=>{
-    setDialog('','Холодно. Но что-то было — вы оба это знаете.',true);
-    showChoices([
-      {text:'— Вернуться к нему.',action:scene_8_soft},
-      {text:'— Уйти совсем.',action:scene_dead_final,danger:true},
-    ]);
-  });
+function scene_8_retreat() {
+  setMood('danger'); updateHearts(hearts-1);
+  if(hearts<=0){ say('Чонгук','— Значит всё-таки боишься.'); wait(7000,()=>{ say('','Он отпускает тебя. Что-то гаснет в его взгляде. Навсегда.',true); wait(7000,()=>endDeath('Ты отступил в последний момент. В его мире нет места для нерешительных.')); }); return; }
+  say('Чонгук','— Хорошо. Как хочешь.');
+  wait(7000,()=>{ say('','Холодно. Дистанция восстановлена. Но что-то было — вы оба это знаете.',true); wait(7000,()=>{ showChoices([{t:'— Подождать. Потом вернуться к нему.',fn:scene_8_soft},{t:'— Уйти совсем.',fn:scene_dead_final,d:true}]); }); });
 }
 
-function scene_dead_final(){
-  setDialog('','Ты уходишь. За тобой — шаги охранников.',true);
-  wait(3000,()=>{
-    setDialog('Чонгук','— Жаль. Ты мог бы стать чем-то большим.');
-    wait(3000,()=>endDeath('Некоторые двери закрываются навсегда.'));
-  });
+function scene_dead_final() {
+  say('','Ты уходишь. За тобой — шаги охранников.',true);
+  wait(7000,()=>{ say('Чонгук','— Жаль. Ты мог бы стать чем-то большим.'); wait(7000,()=>endDeath('Некоторые двери закрываются навсегда.')); });
 }
 
-function scene_romance_1(){
+function scene_romance_1() {
   setMood('soft');
-  setDialog('','Расстояние исчезает. Его рука — у твоего лица. Большой палец на скуле.',true);
-  wait(3000,()=>{
-    setDialog('Чонгук','— Ты уверен? Со мной нет пути назад.');
-    showChoices([
-      {text:'— Я давно перешёл точку невозврата.',action:scene_romance_2},
-      {text:'— Знаю. Я не ищу пути назад.',action:scene_romance_2},
-    ]);
-  });
+  say('','Расстояние между вами исчезает. Его рука — у твоего лица. Большой палец на скуле.',true);
+  wait(7000,()=>{ say('Чонгук','— Ты уверен? Со мной нет пути назад.'); showChoices([{t:'— Я давно перешёл точку невозврата.',fn:scene_romance_2},{t:'— Знаю. Я не ищу пути назад.',fn:scene_romance_2}]); });
 }
 
-function scene_romance_2(){
+function scene_romance_2() {
   setStatus('Рассвет');
   showChapter('Финал · Его',()=>{
-    setDialog('','Позже. Темнота комнаты. Свет города за окном. Он лежит рядом и смотрит на тебя.',true);
-    wait(3000,()=>{
-      setDialog('Чонгук','— Три месяца. Потом — ты свободен. Я помню условие.');
-      wait(3000,()=>{
-        setDialog('','Пауза. Ты ждёшь.',true);
-        wait(3000,()=>{
-          setDialog('Чонгук','— Но если захочешь остаться... двери открыты.');
-          wait(3000,()=>{
-            setDialog('','Первый раз — он не приказывает. Он просит.',true);
-            showChoices([{text:'— Я остаюсь.',action:()=>endRomance('Три месяца стали вечностью. Чонгук не умеет просить. Но для тебя — научился. И этого оказалось достаточно.')}]);
-          });
-        });
-      });
-    });
+    setMood('soft');
+    say('','Позже — темнота комнаты. Свет города за окном. Он лежит рядом. Смотрит в потолок. Потом — на тебя.',true);
+    wait(7000,()=>{ say('Чонгук','— Три месяца. Потом — ты свободен. Я помню условие.'); wait(7000,()=>{ say('','Пауза. Ты ждёшь.',true); wait(7000,()=>{ say('Чонгук','— Но если захочешь остаться... двери открыты.'); wait(7000,()=>{ say('','Первый раз — он не приказывает. Он просит.',true); wait(7000,()=>{ showChoices([{t:'— Я остаюсь.',fn:()=>endRomance('Три месяца стали вечностью. Чонгук не умеет просить. Но для тебя — научился. И этого оказалось достаточно.')}]); }); }); }); }); });
   });
 }
 
